@@ -6,6 +6,6 @@ provider "azurerm" {
 
 #Create a resource group
 resource "azurerm_resource_group" "p1" {
-  name     = "practica1"
+  name     = var.resource_group
   location = "North Europe"
 }
