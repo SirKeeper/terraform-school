@@ -1,16 +1,8 @@
-provider "azurerm" {
-  #whilst the `version` attribute is optional, we recommend pinning to a given version of the Provider
-  version = "~>1.40"
-}
-
 locals {
-  prefix = "p4"
+  admin_username       = "testadmin"
+  virtual_machine_name = "bot-p4"
 }
 
-resource "azurerm_resource_group" "practica4" {
-  name     = "${local.prefix}_RG"
-  location = "North Europe"
-}
 
 resource "azurerm_network_interface" "bot-nic0" {
   name                      = "bot-nic-bot"
@@ -22,12 +14,12 @@ resource "azurerm_network_interface" "bot-nic0" {
     name                          = "ip_bot_subnet"
     subnet_id                     = "${azurerm_subnet.bastion.id}"
     private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.example.id
+    public_ip_address_id          = azurerm_public_ip.bot-pub-ip.id
   }
 }
 
 resource "azurerm_public_ip" "bot-pub-ip" {
-  name                = "${var.prefix}-bastionpip"
+  name                = "bastionpip"
   location            = azurerm_resource_group.practica4.location
   resource_group_name = azurerm_resource_group.practica4.name
   allocation_method   = "Dynamic"
@@ -38,7 +30,7 @@ resource "azurerm_virtual_machine" "bot-vm" {
   name                  = "bot-vm"
   location              = "${azurerm_resource_group.practica4.location}"
   resource_group_name   = "${azurerm_resource_group.practica4.name}"
-  network_interface_ids = ["${azurerm_network_interface.bot-nic0.id}", "${azurerm_network_interface.bot-nic1.id}"]
+  network_interface_ids = ["${azurerm_network_interface.bot-nic0.id}"]
   vm_size               = "Standard_F2"
 
   storage_image_reference {
@@ -56,8 +48,8 @@ resource "azurerm_virtual_machine" "bot-vm" {
   }
 
   os_profile {
-    computer_name  = bot-p4
-    admin_username = testadmin
+    computer_name  = "bot-p4"
+    admin_username = local.admin_username
   }
 
   os_profile_linux_config {
